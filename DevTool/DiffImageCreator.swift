@@ -14,7 +14,10 @@ import CoreImage.CIFilterBuiltins
 // 差分画像を生成するクラス
 struct DiffImageCreator {
     
-    func generateHighlightedDifferenceWithOriginal(image1: NSImage, image2: NSImage) -> NSImage? {
+    let image1: NSImage
+    let image2: NSImage
+    
+    func generateHighlightedDifferenceWithOriginal() -> Image? {
         guard let ciImage1 = CIImage(data: image1.tiffRepresentation!),
               let ciImage2 = CIImage(data: image2.tiffRepresentation!) else {
             return nil
@@ -65,20 +68,7 @@ struct DiffImageCreator {
         let nsImage = NSImage(size: rep.size)
         nsImage.addRepresentation(rep)
 
-        return nsImage
-    }
-
-
-    // 2つの SwiftUI Image から NSImage の差分を生成
-    func createDifferenceImage(from swiftUIImage1: Image, and swiftUIImage2: Image) -> Image? {
-        guard let nsImage1 = swiftUIImage1.toNSImage(),
-              let nsImage2 = swiftUIImage2.toNSImage(),
-              let image = generateHighlightedDifferenceWithOriginal(image1: nsImage1, image2: nsImage2)
-        else {
-            print("SwiftUIのImageをNSImageに変換できません。")
-            return nil
-        }
-        return Image(nsImage: image)
+        return Image(nsImage: nsImage)
     }
 }
 

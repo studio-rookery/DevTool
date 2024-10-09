@@ -74,30 +74,31 @@ struct ImageDiffingView: View {
             ImageDiffingSettingView(name: "After", image: $imageDiffing.after)
             Color.clear.background(.quinary).overlay {
                 HStack {
-                    if let before = imageDiffing.before, let after = imageDiffing.after {
-                        VStack {
-                            ZStack {
-                                before
-                                    .resizable()
-                                    .scaledToFit()
-                                after
-                                    .resizable()
-                                    .scaledToFit()
-                                    .opacity(alpha)
-                            }
-                            .frame(width: 240)
-                            Slider(value: $alpha)
+                    if let beforeAfter = imageDiffing.beforeAfter {
+                        FullSreenView {
+                            SlideImageDiffingView(beforeAfter: beforeAfter)
                         }
+                        .frame(width: 240)
                     }
                     if let diffImage = imageDiffing.diffImage {
-                        ImagePreview(name: "diff.png", image: diffImage.resizable())
-                            .scaledToFit()
-                            .frame(width: 240)
+                        FullSreenView {
+                            diffImage
+                                .resizable()
+                                .draggable(name: "diff.png")
+                                .scaledToFit()
+                        }
+                        .frame(width: 240)
                     }
                     if let gifAnimation = imageDiffing.gifAnimation {
-                        GifImageView(image: gifAnimation.image)
-                            .onDrag(data: gifAnimation.data, name: "diff.gif")
-                            .frame(width: 240)
+                        FullSreenView {
+                            GifImageView(image: gifAnimation.image)
+                                .onDrag(data: gifAnimation.data, name: "diff.gif")
+                        } fullScreenContent: {
+                            GifImageView(image: gifAnimation.image, fullScreen: true)
+                                .onDrag(data: gifAnimation.data, name: "diff.gif")
+                                .frame(width: 800, height: 800)
+                        }
+                        .frame(width: 240)
                     }
                 }
             }
@@ -109,9 +110,15 @@ struct ImageDiffingView: View {
                 return
             }
             
-            imageDiffing.diffImage = DiffImageCreator().createDifferenceImage(from: beforeAfter.before, and: beforeAfter.after)
+            let diffImageCreator = DiffImageCreator(image1: beforeAfter.before.toNSImage()!, image2: beforeAfter.after.toNSImage()!)
+            DispatchQueue(label: "DiffImageCreator").async {
+                let diffImage = diffImageCreator.generateHighlightedDifferenceWithOriginal()
+                DispatchQueue.main.async {
+                    imageDiffing.diffImage = diffImage
+                }
+            }
             let animator = DiffImageBlendAnimator(nsImageA: beforeAfter.before.toNSImage()!, nsImageB: beforeAfter.after.toNSImage()!)
-            DispatchQueue.global().async {
+            DispatchQueue(label: "DiffImageBlendAnimator").async {
                 let gifData = animator.createGifAnimation()
                 DispatchQueue.main.async {
                     guard let gifData, let image = NSImage(data: gifData) else {
@@ -123,6 +130,29 @@ struct ImageDiffingView: View {
         }
     }
 }
+
+struct SlideImageDiffingView: View {
+    
+    let beforeAfter: ImageDiffing.ImageBeforeAfter
+    
+    @State var alpha = 0.5
+    
+    var body: some View {
+        VStack {
+            ZStack {
+                beforeAfter.before
+                    .resizable()
+                    .scaledToFit()
+                beforeAfter.after
+                    .resizable()
+                    .scaledToFit()
+                    .opacity(alpha)
+            }
+            Slider(value: $alpha)
+        }
+    }
+}
+
 struct ImageDiffingSettingView: View {
     
     let name: String
@@ -134,8 +164,12 @@ struct ImageDiffingSettingView: View {
             showsFilePanel = true
         } label: {
             if let image {
-                ImagePreview(name: "\(name).png", image: image.resizable())
-                    .scaledToFit()
+                FullSreenView {
+                    image
+                        .resizable()
+                        .draggable(name: name)
+                        .scaledToFit()
+                }
             } else {
                 Image(systemName: "plus")
                     .frame(width: 80, height: 80)
@@ -268,28 +302,22 @@ extension Image {
     }
 }
 
-struct ImagePreview: View {
-    
-    let name: String
-    let image: Image
+struct FullSreenView<Content: View, FullScreenContent: View>: View {
     
     @State var showsFullScreen = false
     
+    @ViewBuilder let content: () -> Content
+    @ViewBuilder var fullScreenContent: () -> FullScreenContent
+    
     var body: some View {
-        image
-            .draggable(name: name)
+        content()
             .contextMenu {
-                Button {
+                Button("Show Full Screen") {
                     showsFullScreen = true
-                } label: {
-                    Label("Show Full Screen", systemImage: "arrow.up.left.and.arrow.down.right")
                 }
             }
             .sheet(isPresented: $showsFullScreen) {
-                image
-                    .resizable()
-                    .draggable(name: name)
-                    .scaledToFit()
+                fullScreenContent()
                     .overlay(alignment: .topTrailing) {
                         Button {
                             showsFullScreen = false
@@ -302,12 +330,21 @@ struct ImagePreview: View {
                         .padding(8)
                     }
             }
+            .keyboardShortcut(.cancelAction)
+    }
+}
+
+extension FullSreenView where Content == FullScreenContent {
+    
+    init(@ViewBuilder fullScreenContent: @escaping () -> FullScreenContent) {
+        self.init(content: fullScreenContent, fullScreenContent: fullScreenContent)
     }
 }
 
 struct GifImageView: NSViewRepresentable {
     let image: NSImage
-
+    var fullScreen = false
+    
     func makeNSView(context: Context) -> NSImageView {
         let imageView = NSImageView()
         imageView.imageScaling = .scaleProportionallyUpOrDown
@@ -316,7 +353,7 @@ struct GifImageView: NSViewRepresentable {
     }
 
     func sizeThatFits(_ proposal: ProposedViewSize, nsView: NSImageView, context: Context) -> CGSize? {
-        .init(width: proposal.width ?? 0, height: proposal.height ?? 0)
+        fullScreen ? nsView.intrinsicContentSize : .init(width: proposal.width ?? 0, height: proposal.height ?? 0)
     }
     
     func updateNSView(_ nsView: NSImageView, context: Context) {
