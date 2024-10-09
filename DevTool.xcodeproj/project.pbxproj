@@ -11,6 +11,10 @@
 		F4A27BD72C4E7C9E004CDD0B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A27BD62C4E7C9E004CDD0B /* ContentView.swift */; };
 		F4A27BD92C4E7C9F004CDD0B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4A27BD82C4E7C9F004CDD0B /* Assets.xcassets */; };
 		F4A27BDD2C4E7C9F004CDD0B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4A27BDC2C4E7C9F004CDD0B /* Preview Assets.xcassets */; };
+		F4F0D49B2CB6B4910060BEC2 /* ImageDiffing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F0D49A2CB6B4910060BEC2 /* ImageDiffing.swift */; };
+		F4F0D49D2CB6B4CF0060BEC2 /* TextDiffing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F0D49C2CB6B4CF0060BEC2 /* TextDiffing.swift */; };
+		F4F0D49F2CB6BA9B0060BEC2 /* DiffImageCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F0D49E2CB6BA9B0060BEC2 /* DiffImageCreator.swift */; };
+		F4F0D4A12CB6C7F50060BEC2 /* DiffImageBlendAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F0D4A02CB6C7F50060BEC2 /* DiffImageBlendAnimator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +24,10 @@
 		F4A27BD82C4E7C9F004CDD0B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F4A27BDA2C4E7C9F004CDD0B /* DevTool.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DevTool.entitlements; sourceTree = "<group>"; };
 		F4A27BDC2C4E7C9F004CDD0B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		F4F0D49A2CB6B4910060BEC2 /* ImageDiffing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDiffing.swift; sourceTree = "<group>"; };
+		F4F0D49C2CB6B4CF0060BEC2 /* TextDiffing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextDiffing.swift; sourceTree = "<group>"; };
+		F4F0D49E2CB6BA9B0060BEC2 /* DiffImageCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffImageCreator.swift; sourceTree = "<group>"; };
+		F4F0D4A02CB6C7F50060BEC2 /* DiffImageBlendAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiffImageBlendAnimator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +62,10 @@
 			children = (
 				F4A27BD42C4E7C9E004CDD0B /* DevToolApp.swift */,
 				F4A27BD62C4E7C9E004CDD0B /* ContentView.swift */,
+				F4F0D49C2CB6B4CF0060BEC2 /* TextDiffing.swift */,
+				F4F0D49A2CB6B4910060BEC2 /* ImageDiffing.swift */,
+				F4F0D49E2CB6BA9B0060BEC2 /* DiffImageCreator.swift */,
+				F4F0D4A02CB6C7F50060BEC2 /* DiffImageBlendAnimator.swift */,
 				F4A27BD82C4E7C9F004CDD0B /* Assets.xcassets */,
 				F4A27BDA2C4E7C9F004CDD0B /* DevTool.entitlements */,
 				F4A27BDB2C4E7C9F004CDD0B /* Preview Content */,
@@ -97,7 +109,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1540;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					F4A27BD02C4E7C9E004CDD0B = {
 						CreatedOnToolsVersion = 15.4;
@@ -139,8 +151,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4F0D49D2CB6B4CF0060BEC2 /* TextDiffing.swift in Sources */,
+				F4F0D4A12CB6C7F50060BEC2 /* DiffImageBlendAnimator.swift in Sources */,
+				F4F0D49B2CB6B4910060BEC2 /* ImageDiffing.swift in Sources */,
 				F4A27BD72C4E7C9E004CDD0B /* ContentView.swift in Sources */,
 				F4A27BD52C4E7C9E004CDD0B /* DevToolApp.swift in Sources */,
+				F4F0D49F2CB6BA9B0060BEC2 /* DiffImageCreator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,6 +197,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -242,6 +259,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -269,6 +287,7 @@
 				CODE_SIGN_ENTITLEMENTS = DevTool/DevTool.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"DevTool/Preview Content\"";
 				DEVELOPMENT_TEAM = PG368YE8W5;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -307,6 +326,7 @@
 				CODE_SIGN_ENTITLEMENTS = DevTool/DevTool.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"DevTool/Preview Content\"";
 				DEVELOPMENT_TEAM = PG368YE8W5;
 				ENABLE_HARDENED_RUNTIME = YES;
