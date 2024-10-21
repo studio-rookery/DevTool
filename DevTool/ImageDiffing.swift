@@ -16,6 +16,7 @@ struct ImageDiffing: Identifiable {
     }
     
     let id = UUID()
+    var name = ""
     var before: Image?
     var after: Image?
     var diffImage: Image?
@@ -31,6 +32,38 @@ struct ImageDiffing: Identifiable {
             return nil
         }
         return ImageBeforeAfter(before: before, after: after)
+    }
+    
+    var beforeImageFileName: String {
+        if name.isEmpty {
+            return "Before.png"
+        } else {
+            return "\(name)_Before.png"
+        }
+    }
+    
+    var afterImageFileName: String {
+        if name.isEmpty {
+            return "After.png"
+        } else {
+            return "\(name)_After.png"
+        }
+    }
+    
+    var diffHighlightImageFileName: String {
+        if name.isEmpty {
+            return "highlight.png"
+        } else {
+            return "\(name)_highlight.png"
+        }
+    }
+    
+    var gifFileName: String {
+        if name.isEmpty {
+            return "diff.gif"
+        } else {
+            return "\(name)_diff.gif"
+        }
     }
 }
 
@@ -69,36 +102,39 @@ struct ImageDiffingView: View {
     @State var alpha = 0.5
     
     var body: some View {
-        HStack {
-            ImageDiffingSettingView(name: "Before", image: $imageDiffing.before)
-            ImageDiffingSettingView(name: "After", image: $imageDiffing.after)
-            Color.clear.background(.quinary).overlay {
-                HStack {
-                    if let beforeAfter = imageDiffing.beforeAfter {
-                        FullSreenView {
-                            SlideImageDiffingView(beforeAfter: beforeAfter)
+        VStack(alignment: .leading) {
+            TextField("Name", text: $imageDiffing.name)
+            HStack {
+                ImageDiffingSettingView(name: imageDiffing.beforeImageFileName, image: $imageDiffing.before)
+                ImageDiffingSettingView(name: imageDiffing.afterImageFileName, image: $imageDiffing.after)
+                Color.clear.background(.quinary).overlay {
+                    HStack {
+                        if let beforeAfter = imageDiffing.beforeAfter {
+                            FullSreenView {
+                                SlideImageDiffingView(beforeAfter: beforeAfter)
+                            }
+                            .frame(width: 240)
                         }
-                        .frame(width: 240)
-                    }
-                    if let diffImage = imageDiffing.diffImage {
-                        FullSreenView {
-                            diffImage
-                                .resizable()
-                                .draggable(name: "diff.png")
-                                .scaledToFit()
+                        if let diffImage = imageDiffing.diffImage {
+                            FullSreenView {
+                                diffImage
+                                    .resizable()
+                                    .draggable(name: imageDiffing.diffHighlightImageFileName)
+                                    .scaledToFit()
+                            }
+                            .frame(width: 240)
                         }
-                        .frame(width: 240)
-                    }
-                    if let gifAnimation = imageDiffing.gifAnimation {
-                        FullSreenView {
-                            GifImageView(image: gifAnimation.image)
-                                .onDrag(data: gifAnimation.data, name: "diff.gif")
-                        } fullScreenContent: {
-                            GifImageView(image: gifAnimation.image, fullScreen: true)
-                                .onDrag(data: gifAnimation.data, name: "diff.gif")
-                                .frame(width: 800, height: 800)
+                        if let gifAnimation = imageDiffing.gifAnimation {
+                            FullSreenView {
+                                GifImageView(image: gifAnimation.image)
+                                    .onDrag(data: gifAnimation.data, name: imageDiffing.gifFileName)
+                            } fullScreenContent: {
+                                GifImageView(image: gifAnimation.image, fullScreen: true)
+                                    .onDrag(data: gifAnimation.data, name: imageDiffing.gifFileName)
+                                    .frame(width: 800, height: 800)
+                            }
+                            .frame(width: 240)
                         }
-                        .frame(width: 240)
                     }
                 }
             }
