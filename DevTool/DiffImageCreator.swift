@@ -74,14 +74,10 @@ struct DiffImageCreator {
 
 extension Image {
     
+    @MainActor
     func toNSImage() -> NSImage? {
-        let view = NSHostingView(rootView: self)
-        let size = view.fittingSize
-        view.setFrameSize(size)
-        let bitmapRep = view.bitmapImageRepForCachingDisplay(in: view.bounds)!
-        view.cacheDisplay(in: view.bounds, to: bitmapRep)
-        let nsImage = NSImage(size: size)
-        nsImage.addRepresentation(bitmapRep)
-        return nsImage
+        let imageRenderer = ImageRenderer(content: self)
+        imageRenderer.scale = NSScreen.main!.backingScaleFactor
+        return imageRenderer.nsImage
     }
 }

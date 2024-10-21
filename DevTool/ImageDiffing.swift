@@ -291,6 +291,7 @@ extension View {
 
 extension Image {
     
+    @MainActor
     func draggable(name: String) -> some View {
         func createTemporaryFile(for image: NSImage?) -> Data? {
             guard let tiffData = image?.tiffRepresentation else { return nil }
