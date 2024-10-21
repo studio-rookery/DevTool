@@ -73,10 +73,10 @@ struct ImageDiffingListView: View {
     
     var body: some View {
         ScrollView {
+            addButton
             ForEach($diffings) { diffing in
                 ImageDiffingView(imageDiffing: diffing)
             }
-            addButton
         }
     }
     
