@@ -75,7 +75,12 @@ struct ImageDiffingListView: View {
         ScrollView {
             addButton
             ForEach($diffings) { diffing in
-                ImageDiffingView(imageDiffing: diffing)
+                ImageDiffingView(imageDiffing: diffing) {
+                    guard let index = diffings.firstIndex(where: { $0.id == diffing.id }) else {
+                        return
+                    }
+                    diffings.remove(at: index)
+                }
             }
         }
     }
@@ -99,7 +104,8 @@ struct ImageDiffingListView: View {
 struct ImageDiffingView: View {
     
     @Binding var imageDiffing: ImageDiffing
-    @State var alpha = 0.5
+    
+    let onDelete: () -> Void
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -138,30 +144,39 @@ struct ImageDiffingView: View {
                     }
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .onChange(of: imageDiffing.beforeAfter, initial: true) { oldValue, newValue in
+                guard let beforeAfter = newValue else {
+                    return
+                }
+                onChangeBeforeAfter(beforeAfter)
+            }
+            Button("Delete", role: .destructive) {
+                onDelete()
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .onChange(of: imageDiffing.beforeAfter, initial: true) { oldValue, newValue in
-            guard let beforeAfter = newValue else {
-                return
+    }
+    
+    @MainActor
+    func onChangeBeforeAfter(_ beforeAfter: ImageDiffing.ImageBeforeAfter) {
+        let image1 = beforeAfter.before.toNSImage()!
+        let image2 = beforeAfter.after.toNSImage()!
+        let diffImageCreator = DiffImageCreator(image1: image1, image2: image2)
+        DispatchQueue(label: "DiffImageCreator").async {
+            let diffImage = diffImageCreator.generateHighlightedDifferenceWithOriginal()
+            DispatchQueue.main.async {
+                imageDiffing.diffImage = diffImage
             }
-            
-            let diffImageCreator = DiffImageCreator(image1: beforeAfter.before.toNSImage()!, image2: beforeAfter.after.toNSImage()!)
-            DispatchQueue(label: "DiffImageCreator").async {
-                let diffImage = diffImageCreator.generateHighlightedDifferenceWithOriginal()
-                DispatchQueue.main.async {
-                    imageDiffing.diffImage = diffImage
+        }
+        let animator = DiffImageBlendAnimator(nsImageA: image1, nsImageB: image2)
+        DispatchQueue(label: "DiffImageBlendAnimator").async {
+            let gifData = animator.createGifAnimation()
+            DispatchQueue.main.async {
+                guard let gifData, let image = NSImage(data: gifData) else {
+                    return
                 }
-            }
-            let animator = DiffImageBlendAnimator(nsImageA: beforeAfter.before.toNSImage()!, nsImageB: beforeAfter.after.toNSImage()!)
-            DispatchQueue(label: "DiffImageBlendAnimator").async {
-                let gifData = animator.createGifAnimation()
-                DispatchQueue.main.async {
-                    guard let gifData, let image = NSImage(data: gifData) else {
-                        return
-                    }
-                    imageDiffing.gifAnimation = .init(data: gifData, image: image)
-                }
+                imageDiffing.gifAnimation = .init(data: gifData, image: image)
             }
         }
     }
