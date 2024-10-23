@@ -67,8 +67,34 @@ struct DiffImageCreator {
         let rep = NSCIImageRep(ciImage: outputCIImage)
         let nsImage = NSImage(size: rep.size)
         nsImage.addRepresentation(rep)
+        
+        let scale: CGFloat = 0.1
+        let newSize = rep.size.applying(CGAffineTransform(scaleX: scale, y: scale))
+        return Image(nsImage: nsImage.resized(to: newSize))
+    }
+}
 
-        return Image(nsImage: nsImage)
+extension NSImage {
+    
+    func resized(to newSize: CGSize) -> NSImage {
+        let img = NSImage(size: newSize)
+
+        img.lockFocus()
+        defer {
+            img.unlockFocus()
+        }
+
+        if let ctx = NSGraphicsContext.current {
+            ctx.imageInterpolation = .high
+            draw(
+                in: NSRect(origin: .zero, size: newSize),
+                from: NSRect(origin: .zero, size: size),
+                operation: .copy,
+                fraction: 1
+            )
+        }
+
+        return img
     }
 }
 

@@ -27,7 +27,8 @@ struct DiffImageBlendAnimator {
     let frameRate: Double = 0.1
 
     func createGifAnimation() -> Data? {
-        let size = nsImageA.size // Use the size of the first image
+        let scale: CGFloat = 0.2
+        let size = nsImageA.size.applying(CGAffineTransform(scaleX: scale, y: scale)) // Use the size of the first image
 
         // Create APNG properties
         let fileProperties = [kCGImagePropertyPNGDictionary: [kCGImagePropertyAPNGLoopCount: 0]]
@@ -40,7 +41,7 @@ struct DiffImageBlendAnimator {
         CGImageDestinationSetProperties(destination, fileProperties as CFDictionary)
 
         func drawText(_ text: String, alpha: Double) {
-            let fontSize: CGFloat = 64
+            let fontSize: CGFloat = size.height * 0.06
             let attributes: [NSAttributedString.Key: Any] = [
                 .font: NSFont.systemFont(ofSize: fontSize, weight: .bold),
                 .foregroundColor: NSColor.red.withAlphaComponent(CGFloat(alpha)),
@@ -80,7 +81,7 @@ struct DiffImageBlendAnimator {
         guard CGImageDestinationFinalize(destination) else {
             return nil
         }
-
+        
         return data as Data
     }
 }
